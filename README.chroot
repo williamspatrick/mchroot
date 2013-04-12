@@ -1,0 +1,72 @@
+Creating a cross-compile chroot environment using Gentoo.
+
+1. Create destination directory.  Referenced as <chroot> below.
+    Ex. /esw/powerpc64-gcc-20130412
+
+2. Configure portage options.
+
+    <chroot>/etc/make.conf:
+        MAKEOPTS="-j5"
+        CFLAGS="-O2 -pipe"
+        CXXFLAGS="${CFLAGS}"
+
+    <chroot>/etc/portage/make.profile/parent:
+        gentoo:default/linux/amd64
+        # OR
+        gentoo:funtoo/1.0/linux-gnu/arch/x86-64bit
+        gentoo:funtoo/1.0/linux-gnu/build/current
+        gentoo:funtoo/1.0/linux-gnu/flavor/minimal
+
+    <chroot>/etc/portage/package.use/net-misc:
+        net-misc/curl ssl
+
+    <chroot>/etc/portage/package.use/sys-devel:
+        sys-devel/binutils multitarget
+
+3. Install 'system'.
+
+    cd <chroot>
+    ROOT=`pwd` PORTAGE_CONFIGROOT=`pwd` emerge @system --jobs
+
+4. Install cross-compiler and extra packages.
+
+    unshare -m /bin/bash
+    mount -n --bind /dev <chroot>/dev
+    mount -n --bind /proc <chroot>/proc
+    mkdir <chroot>/usr/portage
+    mount -n --bind /usr/portage <chroot>/usr/portage
+    chroot <chroot> /bin/bash
+
+    emerge crossdev dwarves --jobs
+
+    mkdir /usr/local/portage
+    crossdev powerpc64-unknown-linux-gnu --ov-output /usr/local/portage
+
+    exit
+    exit
+
+5. Install mchroot and wrappers.
+
+    cd /tmp
+    git clone http://github.com/williamspatrick/mchroot
+    cd mchroot
+    gcc mchroot.c -Os -static -o mchroot
+
+    mkdir <chroot>/wrappers
+    cp mchroot mchroot_wrapper.sh jail_wrapper.sh <chroot>/wrappers
+    
+    cd <chroot>/wrappers
+    chmod u+s mchroot
+    /tmp/mchroot/create_wrapper_links.sh
+
+6. Configure mchroot
+
+    Add file systems you wish to bind-mount into the chroot to 
+    <chroot>/.mchroot.cfg with one mount path per line.
+
+    <chroot>/.mchroot.cfg:
+        /dev
+        /proc
+        /tmp
+        /home
+        (...etc...)
