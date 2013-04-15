@@ -30,6 +30,7 @@ Creating a cross-compile chroot environment using Gentoo.
 
 4. Install cross-compiler and extra packages.
 
+    cp /etc/resolv.conf <chroot>/etc/resolv.conf
     unshare -m /bin/bash
     mount -n --bind /dev <chroot>/dev
     mount -n --bind /proc <chroot>/proc
@@ -38,6 +39,7 @@ Creating a cross-compile chroot environment using Gentoo.
     chroot <chroot> /bin/bash
 
     emerge crossdev dwarves --jobs
+    emerge strace                       # optional
 
     mkdir /usr/local/portage
     crossdev powerpc64-unknown-linux-gnu --ov-output /usr/local/portage
