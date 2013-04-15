@@ -1,6 +1,8 @@
 #!/bin/sh
 
-SCRIPT=`realpath $0`
+SCRIPT=$0
 SCRIPTPATH=`dirname ${SCRIPT}`
 
-mchroot ${SCRIPTPATH/\/wrappers/} $*
+export PATH=${PATH/$SCRIPTPATH:/}
+
+${SCRIPTPATH}/mchroot ${SCRIPTPATH/\/wrappers/} $*
