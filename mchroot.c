@@ -51,8 +51,11 @@ int main(int argc, char** argv, char** envp)
         exit(-1);
     }
 
-    //rc = mount("/home", "/tmp", "", MS_BIND, "");
-    //printf("%d, %s\n", rc, strerror(errno));
+    rc = setuid(getuid());
+    if (0 != rc)
+    {
+        printf("ERROR: setuid call failed with %s\n", strerror(errno));
+    }
 
     rc = execve(argv[2], &argv[2], envp);
     if (0 != rc)
@@ -124,7 +127,7 @@ void do_mounts(const char* path)
                     }
                 }
 
-                rc = mount(data, sub_path, "", MS_BIND, "");
+                rc = mount(data, sub_path, "", MS_BIND|MS_REC, "");
                 if (rc != 0)
                 {
                     printf("ERROR: Mounting %s : %s\n", data,
