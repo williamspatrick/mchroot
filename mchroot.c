@@ -119,7 +119,10 @@ void do_mounts(const char* path)
                 int rc = mkdir(sub_path, 0777);
                 if (rc != 0)
                 {
-                    if (errno != EEXIST)
+                    if ((errno != EEXIST) &&
+                        (errno != EACCES) &&
+                        (errno != EPERM) &&
+                        (errno != EROFS))
                     {
                         printf("ERROR: Creating %s : %s\n", sub_path,
                                strerror(errno));
