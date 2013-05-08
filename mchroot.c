@@ -52,6 +52,12 @@ int main(int argc, char** argv, char** envp)
         exit(-1);
     }
 
+    rc = setuid(getuid());
+    if (0 != rc)
+    {
+        printf("ERROR: setuid call failed with %s\n", strerror(errno));
+    }
+
     rc = chdir(get_current_dir_name());
     if (0 != rc)
     {
@@ -59,11 +65,6 @@ int main(int argc, char** argv, char** envp)
         exit(-1);
     }
 
-    rc = setuid(getuid());
-    if (0 != rc)
-    {
-        printf("ERROR: setuid call failed with %s\n", strerror(errno));
-    }
 
     rc = execve(argv[2], &argv[2], envp);
     if (0 != rc)
