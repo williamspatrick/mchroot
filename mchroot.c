@@ -2,6 +2,7 @@
 
 #include <sched.h>
 #include <sys/mount.h>
+#include <sys/stat.h>
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
@@ -51,6 +52,13 @@ int main(int argc, char** argv, char** envp)
         exit(-1);
     }
 
+    rc = chdir(get_current_dir_name());
+    if (0 != rc)
+    {
+        printf("ERROR: chdir call failed with %s\n", strerror(errno));
+        exit(-1);
+    }
+
     rc = setuid(getuid());
     if (0 != rc)
     {
@@ -76,7 +84,7 @@ void do_mounts(const char* path)
 {
     int rc = 0;
 
-    char* configFile = malloc(PATH_MAX);
+    char* configFile = (char*) malloc(PATH_MAX);
     strncpy(configFile, path, PATH_MAX);
     strncat(configFile, "/.mchroot.cfg", PATH_MAX-1);
 
@@ -93,7 +101,7 @@ void do_mounts(const char* path)
         exit(-1);
     }
 
-    char* data = malloc(4096);
+    char* data = (char*) malloc(4096);
     memset(data, '\0', 4096);
     ssize_t size = read(file, data, 4096);
 
@@ -111,7 +119,7 @@ void do_mounts(const char* path)
         {
             if (strlen(data))
             {
-                char* sub_path = malloc(PATH_MAX);
+                char* sub_path = (char*) malloc(PATH_MAX);
 
                 strncpy(sub_path, path, PATH_MAX);
                 strncat(sub_path, data, PATH_MAX-1);
